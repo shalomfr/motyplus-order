@@ -39,6 +39,7 @@ interface InstrumentInfo {
   name: string;
   serial: string;
   fullId: string;
+  waveCapacity: number;
 }
 
 // Parse .n27 binary to detect instrument model
@@ -48,27 +49,47 @@ function parseN27(buf: Uint8Array): InstrumentInfo {
     while (end < offset + maxLen && end < buf.length && buf[end] !== 0) end++;
     return new TextDecoder("ascii").decode(buf.slice(offset, end));
   };
+  let waveCapacity = 0;
+  if (buf.length >= 0x7C) {
+    const waveUnits = ((buf[0x78] << 24) | (buf[0x79] << 16) | (buf[0x7A] << 8) | buf[0x7B]) >>> 0;
+    waveCapacity = waveUnits * 1024;
+  }
   return {
     name: readStr(0, 64).trim(),
     serial: buf.length >= 88 ? readStr(64, 24).trim() : "",
     fullId: buf.length >= 120 ? readStr(88, 32).trim() : "",
+    waveCapacity,
   };
 }
 
 // Try to match detected instrument name to organs list
-function matchOrgan(detectedName: string, organs: Organ[]): Organ | null {
+// Uses waveCapacity to distinguish Tyros5-1G from Tyros5-2G
+function matchOrgan(detectedName: string, organs: Organ[], waveCapacity = 0): Organ | null {
   if (!detectedName) return null;
-  const lower = detectedName.toLowerCase().replace(/[-_\s]+/g, "");
+  const normalize = (s: string) => s.toLowerCase().replace(/[-_\s]+/g, "");
+  const lower = normalize(detectedName);
 
   // Exact match first
-  for (const organ of organs) {
-    const organLower = organ.name.toLowerCase().replace(/[-_\s]+/g, "");
-    if (lower === organLower || lower.includes(organLower) || organLower.includes(lower)) {
-      return organ;
-    }
+  const exact = organs.find(o => normalize(o.name) === lower);
+  if (exact) return exact;
+
+  // Partial match — collect all candidates
+  const candidates = organs.filter(o => {
+    const oLower = normalize(o.name);
+    return lower.includes(oLower) || oLower.includes(lower);
+  });
+
+  // Disambiguate Tyros5-1G vs Tyros5-2G using waveCapacity
+  if (candidates.length > 1 && lower.includes("tyros5") && waveCapacity > 0) {
+    const threshold = 1.5 * 1024 * 1024 * 1024; // 1.5GB
+    const suffix = waveCapacity > threshold ? "2g" : "1g";
+    const specific = candidates.find(c => normalize(c.name).includes(suffix));
+    if (specific) return specific;
   }
 
-  // Partial keyword match
+  if (candidates.length > 0) return candidates[0];
+
+  // Partial keyword match fallback
   const keywords = lower.match(/[a-z]+|\d+/g) || [];
   for (const organ of organs) {
     const organLower = organ.name.toLowerCase();
@@ -142,7 +163,7 @@ export default function OrderPage() {
         setDetectedInstrument(info);
 
         if (info.name && organs.length > 0) {
-          const matched = matchOrgan(info.name, organs);
+          const matched = matchOrgan(info.name, organs, info.waveCapacity);
           if (matched) {
             setOrganId(matched.id);
             setAutoDetected(true);
