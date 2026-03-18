@@ -12,7 +12,8 @@ import {
   Cpu,
 } from "lucide-react";
 
-const API = "https://motyplus-2hvb.onrender.com";
+// API URL injected via next.config.ts env
+const API = process.env.NEXT_PUBLIC_API_URL!;
 
 interface Organ {
   id: string;
