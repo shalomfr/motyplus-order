@@ -402,116 +402,40 @@ export default function OrderPage() {
           <CreditCard className="h-5 w-5 text-orange-500" />
           שלב 3 — בחירת מוצר
         </h3>
-        <div className="flex gap-2 mb-4">
-          <button
-            type="button"
-            className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-colors ${
-              !isUpdateOnly
-                ? "bg-blue-600 text-white shadow-sm"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-            onClick={() => {
-              setIsUpdateOnly(false);
-              setUpdateVersionId("");
-            }}
-          >
-            רכישת סט
-          </button>
-          <button
-            type="button"
-            className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-colors ${
-              isUpdateOnly
-                ? "bg-blue-600 text-white shadow-sm"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-            onClick={() => {
-              setIsUpdateOnly(true);
-              setSetTypeId("");
-            }}
-          >
-            עדכון תוכנה בלבד
-          </button>
-        </div>
-
-        {!isUpdateOnly && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {sets.map((set) => {
-              const price = Number(set.price);
-              if (price <= 0) return null;
-              return (
-                <div
-                  key={set.id}
-                  className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                    setTypeId === set.id
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                  onClick={() => setSetTypeId(set.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{set.name}</span>
-                    {setTypeId === set.id && (
-                      <CheckCircle2 className="h-5 w-5 text-blue-500" />
-                    )}
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-xl font-bold text-blue-600">
-                      {price.toLocaleString()} ₪
-                    </span>
-                    {set.includesUpdates && (
-                      <span className="text-xs bg-green-50 text-green-700 border border-green-300 rounded-full px-2 py-0.5">
-                        כולל עדכונים
-                      </span>
-                    )}
-                  </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {sets.map((set) => {
+            const price = Number(set.price);
+            if (price <= 0) return null;
+            return (
+              <div
+                key={set.id}
+                className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                  setTypeId === set.id
+                    ? "border-blue-500 bg-blue-50 shadow-sm"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+                onClick={() => setSetTypeId(set.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{set.name}</span>
+                  {setTypeId === set.id && (
+                    <CheckCircle2 className="h-5 w-5 text-blue-500" />
+                  )}
                 </div>
-              );
-            })}
-          </div>
-        )}
-
-        {isUpdateOnly && (
-          <>
-            {selectedOrgan && !selectedOrgan.supportsUpdates && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3 text-sm text-yellow-700 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
-                האורגן שנבחר ({selectedOrgan.name}) לא תומך בעדכוני תוכנה
-              </div>
-            )}
-            <div className="space-y-2">
-              {updates
-                .filter((v) => Number(v.price) > 0)
-                .map((ver) => (
-                  <div
-                    key={ver.id}
-                    className={`border-2 rounded-lg p-3 cursor-pointer transition-all flex items-center justify-between ${
-                      updateVersionId === ver.id
-                        ? "border-blue-500 bg-blue-50 shadow-sm"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                    onClick={() => setUpdateVersionId(ver.id)}
-                  >
-                    <div className="flex items-center gap-3">
-                      {updateVersionId === ver.id ? (
-                        <CheckCircle2 className="h-5 w-5 text-blue-500" />
-                      ) : (
-                        <div className="h-5 w-5 rounded-full border-2 border-gray-300" />
-                      )}
-                      <span className="font-medium">{ver.version}</span>
-                      {ver.description && (
-                        <span className="text-xs text-gray-400">
-                          {ver.description}
-                        </span>
-                      )}
-                    </div>
-                    <span className="font-bold text-blue-600">
-                      {Number(ver.price).toLocaleString()} ₪
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-xl font-bold text-blue-600">
+                    {price.toLocaleString()} ₪
+                  </span>
+                  {set.includesUpdates && (
+                    <span className="text-xs bg-green-50 text-green-700 border border-green-300 rounded-full px-2 py-0.5">
+                      כולל עדכונים
                     </span>
-                  </div>
-                ))}
-            </div>
-          </>
-        )}
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* שלב 4 — פרטים אישיים */}
