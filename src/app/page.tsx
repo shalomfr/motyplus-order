@@ -12,7 +12,7 @@ import {
   Cpu,
 } from "lucide-react";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "https://motyplus-2hvb.onrender.com";
+const API = "https://motyplus-2hvb.onrender.com";
 
 interface Organ {
   id: string;
