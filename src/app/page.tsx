@@ -12,8 +12,8 @@ import {
   Cpu,
 } from "lucide-react";
 
-// API URL injected via next.config.ts env
-const API = process.env.NEXT_PUBLIC_API_URL!;
+// API calls go through Next.js rewrites proxy (no CORS needed)
+const CRM = "";
 
 interface Organ {
   id: string;
@@ -103,15 +103,15 @@ export default function OrderPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/api/public/organs`).then((r) => {
+      fetch(`${CRM}/api/public/organs`).then((r) => {
         if (!r.ok) throw new Error("שגיאה בטעינת רשימת אורגנים");
         return r.json();
       }),
-      fetch(`${API}/api/public/sets`).then((r) => {
+      fetch(`${CRM}/api/public/sets`).then((r) => {
         if (!r.ok) throw new Error("שגיאה בטעינת רשימת סטים");
         return r.json();
       }),
-      fetch(`${API}/api/public/updates`).then((r) => {
+      fetch(`${CRM}/api/public/updates`).then((r) => {
         if (!r.ok) throw new Error("שגיאה בטעינת רשימת עדכונים");
         return r.json();
       }),
@@ -216,7 +216,7 @@ export default function OrderPage() {
       if (notes) fd.append("notes", notes);
       fd.append("infoFile", infoFile);
 
-      const res = await fetch(`${API}/api/public/create-payment`, {
+      const res = await fetch(`${CRM}/api/public/create-payment`, {
         method: "POST",
         body: fd,
       });
