@@ -575,7 +575,7 @@ export default function OrderPage() {
           </p>
         )}
         <p className="text-xs text-center text-gray-500 mt-3">
-          התשלום מבוצע באופן מאובטח דרך iCount
+          התשלום מבוצע באופן מאובטח
         </p>
       </div>
     </form>
