@@ -3,28 +3,50 @@ import { NextRequest, NextResponse } from "next/server";
 const CRM_BASE = "https://motyplus-2hvb.onrender.com";
 
 async function proxy(req: NextRequest) {
-  const url = new URL(req.url);
-  const target = `${CRM_BASE}${url.pathname}${url.search}`;
+  try {
+    const url = new URL(req.url);
+    const target = `${CRM_BASE}${url.pathname}${url.search}`;
 
-  // Forward the raw body with original content-type (preserves multipart boundary)
-  const body = req.method !== "GET" ? await req.blob() : undefined;
+    if (req.method === "GET") {
+      const res = await fetch(target);
+      const data = await res.arrayBuffer();
+      return new NextResponse(data, {
+        status: res.status,
+        headers: {
+          "content-type": res.headers.get("content-type") || "application/json",
+        },
+      });
+    }
 
-  const res = await fetch(target, {
-    method: req.method,
-    headers: {
-      "content-type": req.headers.get("content-type") || "",
-    },
-    body,
-  });
+    // For POST — re-build FormData to forward cleanly
+    const incoming = await req.formData();
+    const outgoing = new FormData();
 
-  const data = await res.arrayBuffer();
+    for (const [key, value] of incoming.entries()) {
+      if (value instanceof Blob) {
+        outgoing.append(key, value, (value as File).name || "file");
+      } else {
+        outgoing.append(key, value);
+      }
+    }
 
-  return new NextResponse(data, {
-    status: res.status,
-    headers: {
-      "content-type": res.headers.get("content-type") || "application/json",
-    },
-  });
+    const res = await fetch(target, {
+      method: "POST",
+      body: outgoing,
+    });
+
+    const data = await res.arrayBuffer();
+
+    return new NextResponse(data, {
+      status: res.status,
+      headers: {
+        "content-type": res.headers.get("content-type") || "application/json",
+      },
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown proxy error";
+    return NextResponse.json({ error: `Proxy error: ${message}` }, { status: 502 });
+  }
 }
 
 export const GET = proxy;
