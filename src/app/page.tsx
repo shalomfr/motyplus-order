@@ -114,6 +114,7 @@ export default function OrderPage() {
   const [updateVersionId, setUpdateVersionId] = useState("");
   const [infoFile, setInfoFile] = useState<File | null>(null);
   const [notes, setNotes] = useState("");
+  const [couponCode, setCouponCode] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -235,6 +236,7 @@ export default function OrderPage() {
       if (setTypeId) fd.append("setTypeId", setTypeId);
       if (updateVersionId) fd.append("updateVersionId", updateVersionId);
       if (notes) fd.append("notes", notes);
+      if (couponCode.trim()) fd.append("couponCode", couponCode.trim());
       fd.append("infoFile", infoFile);
 
       const res = await fetch(`${CRM}/api/public/create-payment`, {
@@ -482,6 +484,18 @@ export default function OrderPage() {
                 className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              קוד קופון (אם יש)
+            </label>
+            <input
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+              placeholder="הזן קוד קופון..."
+              dir="ltr"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
