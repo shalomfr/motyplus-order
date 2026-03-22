@@ -239,20 +239,14 @@ export default function OrderPage() {
       if (couponCode.trim()) fd.append("couponCode", couponCode.trim());
       fd.append("infoFile", infoFile);
 
-      const res = await fetch(`${CRM}/api/public/create-payment`, {
-        method: "POST",
-        body: fd,
-      });
+      // TODO: בעתיד - לשלוח נתוני הזמנה ל-API לפני הפנייה לתשלום
+      // const res = await fetch(`${CRM}/api/public/create-payment`, {
+      //   method: "POST",
+      //   body: fd,
+      // });
 
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "שגיאה ביצירת ההזמנה");
-        return;
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
+      // הפנייה לעמוד תשלום Morning
+      window.location.href = "https://mrng.to/q5NgLDBeiD";
     } catch {
       setError("שגיאה בשליחת הטופס. נסו שוב.");
     } finally {
