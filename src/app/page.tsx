@@ -115,6 +115,8 @@ export default function OrderPage() {
   const [infoFile, setInfoFile] = useState<File | null>(null);
   const [notes, setNotes] = useState("");
   const [couponCode, setCouponCode] = useState("");
+  const [customAmount, setCustomAmount] = useState("");
+  const [customDescription, setCustomDescription] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -178,9 +180,13 @@ export default function OrderPage() {
 
   const selectedSet = sets.find((s) => s.id === setTypeId);
   const selectedUpdate = updates.find((u) => u.id === updateVersionId);
-  const totalPrice = isUpdateOnly
-    ? Number(selectedUpdate?.price || 0)
-    : Number(selectedSet?.price || 0);
+  const isCustom = setTypeId === "__custom__";
+  const customAmountNum = Number(customAmount) || 0;
+  const totalPrice = isCustom
+    ? customAmountNum
+    : isUpdateOnly
+      ? Number(selectedUpdate?.price || 0)
+      : Number(selectedSet?.price || 0);
 
   const selectedOrgan = organs.find((o) => o.id === organId);
   const canSubmit =
@@ -189,7 +195,7 @@ export default function OrderPage() {
     email.includes("@") &&
     organId &&
     infoFile &&
-    (isUpdateOnly ? !!updateVersionId : !!setTypeId) &&
+    (isCustom ? customAmountNum > 0 : isUpdateOnly ? !!updateVersionId : !!setTypeId) &&
     totalPrice > 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -212,11 +218,15 @@ export default function OrderPage() {
       setError("יש לבחור אורגן");
       return;
     }
-    if (!isUpdateOnly && !setTypeId) {
+    if (isCustom && customAmountNum <= 0) {
+      setError("יש להזין סכום תקין");
+      return;
+    }
+    if (!isCustom && !isUpdateOnly && !setTypeId) {
       setError("יש לבחור סוג סט");
       return;
     }
-    if (isUpdateOnly && !updateVersionId) {
+    if (!isCustom && isUpdateOnly && !updateVersionId) {
       setError("יש לבחור גרסת עדכון");
       return;
     }
@@ -233,11 +243,20 @@ export default function OrderPage() {
       fd.append("email", email);
       fd.append("organId", organId);
       fd.append("isUpdateOnly", String(isUpdateOnly));
-      if (setTypeId) fd.append("setTypeId", setTypeId);
-      if (updateVersionId) fd.append("updateVersionId", updateVersionId);
+      if (isCustom) {
+        fd.append("customAmount", String(customAmountNum));
+        if (customDescription.trim()) fd.append("customDescription", customDescription.trim());
+      } else {
+        if (setTypeId) fd.append("setTypeId", setTypeId);
+        if (updateVersionId) fd.append("updateVersionId", updateVersionId);
+      }
       if (notes) fd.append("notes", notes);
       if (couponCode.trim()) fd.append("couponCode", couponCode.trim());
       fd.append("infoFile", infoFile);
+      const billingFromEnv = process.env.NEXT_PUBLIC_BILLING_PROVIDER?.trim();
+      if (billingFromEnv) {
+        fd.append("billingProvider", billingFromEnv);
+      }
 
       const res = await fetch(`${CRM}/api/public/create-payment`, {
         method: "POST",
@@ -437,7 +456,53 @@ export default function OrderPage() {
               </div>
             );
           })}
+          {/* Custom amount card */}
+          <div
+            className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+              isCustom
+                ? "border-orange-500 bg-orange-50 shadow-sm"
+                : "border-dashed border-gray-300 hover:border-gray-400"
+            }`}
+            onClick={() => setSetTypeId("__custom__")}
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-gray-600">סכום חופשי</span>
+              {isCustom && (
+                <CheckCircle2 className="h-5 w-5 text-orange-500" />
+              )}
+            </div>
+            <p className="text-xs text-gray-400 mt-1">הזן סכום לתשלום ידנית</p>
+          </div>
         </div>
+
+        {isCustom && (
+          <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                סכום (₪) *
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={customAmount}
+                onChange={(e) => setCustomAmount(e.target.value)}
+                placeholder="הזן סכום"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                תיאור (אופציונלי)
+              </label>
+              <input
+                value={customDescription}
+                onChange={(e) => setCustomDescription(e.target.value)}
+                placeholder="למשל: תשלום עבור שירות מיוחד"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* שלב 4 — פרטים אישיים */}
