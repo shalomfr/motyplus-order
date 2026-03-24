@@ -39,7 +39,7 @@ interface InstrumentInfo {
   name: string;
   serial: string;
   fullId: string;
-  waveCapacity: number;
+  waveUnits: number;
 }
 
 // Parse .n27 binary to detect instrument model
@@ -49,22 +49,21 @@ function parseN27(buf: Uint8Array): InstrumentInfo {
     while (end < offset + maxLen && end < buf.length && buf[end] !== 0) end++;
     return new TextDecoder("ascii").decode(buf.slice(offset, end));
   };
-  let waveCapacity = 0;
+  let waveUnits = 0;
   if (buf.length >= 0x7C) {
-    const waveUnits = ((buf[0x78] << 24) | (buf[0x79] << 16) | (buf[0x7A] << 8) | buf[0x7B]) >>> 0;
-    waveCapacity = waveUnits * 1024;
+    waveUnits = ((buf[0x78] << 24) | (buf[0x79] << 16) | (buf[0x7A] << 8) | buf[0x7B]) >>> 0;
   }
   return {
     name: readStr(0, 64).trim(),
     serial: buf.length >= 88 ? readStr(64, 24).trim() : "",
     fullId: buf.length >= 120 ? readStr(88, 32).trim() : "",
-    waveCapacity,
+    waveUnits,
   };
 }
 
 // Try to match detected instrument name to organs list
-// Uses waveCapacity to distinguish Tyros5-1G from Tyros5-2G
-function matchOrgan(detectedName: string, organs: Organ[], waveCapacity = 0): Organ | null {
+// Uses waveUnits to distinguish Tyros5-1G from Tyros5-2G
+function matchOrgan(detectedName: string, organs: Organ[], waveUnits = 0): Organ | null {
   if (!detectedName) return null;
   const normalize = (s: string) => s.toLowerCase().replace(/[-_\s]+/g, "");
   const lower = normalize(detectedName);
@@ -79,10 +78,10 @@ function matchOrgan(detectedName: string, organs: Organ[], waveCapacity = 0): Or
     return lower.includes(oLower) || oLower.includes(lower);
   });
 
-  // Disambiguate Tyros5-1G vs Tyros5-2G using waveCapacity
-  if (candidates.length > 1 && lower.includes("tyros5") && waveCapacity > 0) {
-    const threshold = 1.5 * 1024 * 1024 * 1024; // 1.5GB
-    const suffix = waveCapacity > threshold ? "2g" : "1g";
+  // Disambiguate Tyros5-1G vs Tyros5-2G using waveUnits (offset 122)
+  // 0x03FF = 1G, 0x07FF = 2G
+  if (candidates.length > 1 && lower.includes("tyros5") && waveUnits > 0) {
+    const suffix = waveUnits === 0x07FF ? "2g" : "1g";
     const specific = candidates.find(c => normalize(c.name).includes(suffix));
     if (specific) return specific;
   }
@@ -166,7 +165,7 @@ export default function OrderPage() {
         setDetectedInstrument(info);
 
         if (info.name && organs.length > 0) {
-          const matched = matchOrgan(info.name, organs, info.waveCapacity);
+          const matched = matchOrgan(info.name, organs, info.waveUnits);
           if (matched) {
             setOrganId(matched.id);
             setAutoDetected(true);
