@@ -123,7 +123,6 @@ export default function OrderPage() {
   const [loadError, setLoadError] = useState("");
   const [detectedInstrument, setDetectedInstrument] = useState<InstrumentInfo | null>(null);
   const [autoDetected, setAutoDetected] = useState(false);
-  const [detectionFailed, setDetectionFailed] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -156,8 +155,6 @@ export default function OrderPage() {
       setInfoFile(file);
       setDetectedInstrument(null);
       setAutoDetected(false);
-      setDetectionFailed(false);
-      setOrganId("");
 
       if (!file) return;
 
@@ -172,11 +169,7 @@ export default function OrderPage() {
           if (matched) {
             setOrganId(matched.id);
             setAutoDetected(true);
-          } else {
-            setDetectionFailed(true);
           }
-        } else {
-          setDetectionFailed(true);
         }
       };
       reader.readAsArrayBuffer(file);
@@ -221,7 +214,7 @@ export default function OrderPage() {
       return;
     }
     if (!organId) {
-      setError("לא זוהה אורגן מקובץ האינפו — נסו להעלות קובץ אחר");
+      setError("יש לבחור אורגן");
       return;
     }
     if (isCustom && customAmountNum <= 0) {
@@ -314,15 +307,15 @@ export default function OrderPage() {
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-gray-800">טופס הזמנה</h2>
         <p className="text-gray-500 mt-1">
-          העלו קובץ אינפו, בחרו מוצר ומלאו פרטים לתשלום
+          העלו קובץ אינפו, בחרו מוצר ועברו לתשלום
         </p>
       </div>
 
-      {/* שלב 1 — העלאת קובץ אינפו + זיהוי אורגן */}
+      {/* שלב 1 — העלאת קובץ אינפו (ראשון — כדי לזהות אורגן) */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
           <Upload className="h-5 w-5 text-teal-500" />
-          שלב 1 — העלאת קובץ אינפו
+          שלב 1 — קובץ אינפו
         </h3>
         <p className="text-xs text-gray-400 mb-4">
           העלו את קובץ האינפו מהאורגן שלכם — המערכת תזהה אוטומטית את סוג האורגן
@@ -330,11 +323,7 @@ export default function OrderPage() {
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
             infoFile
-              ? autoDetected
-                ? "border-green-300 bg-green-50"
-                : detectionFailed
-                  ? "border-red-300 bg-red-50"
-                  : "border-green-300 bg-green-50"
+              ? "border-green-300 bg-green-50"
               : "border-gray-300 hover:border-blue-300"
           }`}
           onClick={() => document.getElementById("infoFile")?.click()}
@@ -347,7 +336,7 @@ export default function OrderPage() {
             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
           />
           {infoFile ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex items-center justify-center gap-2 text-green-700">
                 <CheckCircle2 className="h-5 w-5" />
                 <span className="font-medium">{infoFile.name}</span>
@@ -355,37 +344,17 @@ export default function OrderPage() {
                   ({(infoFile.size / 1024).toFixed(1)} KB)
                 </span>
               </div>
-              {autoDetected && selectedOrgan && (
-                <div className="bg-green-100 border border-green-300 rounded-lg p-3 mx-auto w-fit">
-                  <div className="flex items-center justify-center gap-2 text-green-800">
-                    <Music className="h-5 w-5" />
-                    <span className="text-base font-bold">
-                      {selectedOrgan.name}
+              {detectedInstrument?.name && (
+                <div className="flex items-center justify-center gap-2 text-blue-600 bg-blue-50 rounded-lg py-2 px-3 mx-auto w-fit">
+                  <Cpu className="h-4 w-4" />
+                  <span className="text-sm font-medium">
+                    זוהה: {detectedInstrument.name}
+                  </span>
+                  {detectedInstrument.serial && (
+                    <span className="text-xs text-gray-500">
+                      (S/N: {detectedInstrument.serial})
                     </span>
-                  </div>
-                  {detectedInstrument?.serial && (
-                    <p className="text-xs text-green-600 mt-1 text-center">
-                      S/N: {detectedInstrument.serial}
-                    </p>
                   )}
-                </div>
-              )}
-              {detectionFailed && (
-                <div className="bg-red-100 border border-red-300 rounded-lg p-3 mx-auto">
-                  <div className="flex items-center justify-center gap-2 text-red-700">
-                    <AlertCircle className="h-4 w-4" />
-                    <span className="text-sm font-medium">
-                      לא הצלחנו לזהות את האורגן מהקובץ
-                    </span>
-                  </div>
-                  {detectedInstrument?.name && (
-                    <p className="text-xs text-red-600 mt-1 text-center">
-                      זוהה: {detectedInstrument.name} — אורגן זה אינו ברשימה
-                    </p>
-                  )}
-                  <p className="text-xs text-red-500 mt-2 text-center">
-                    נסו להעלות קובץ אינפו אחר, או צרו קשר לקבלת סיוע
-                  </p>
                 </div>
               )}
             </div>
@@ -409,8 +378,6 @@ export default function OrderPage() {
               setInfoFile(null);
               setDetectedInstrument(null);
               setAutoDetected(false);
-              setDetectionFailed(false);
-              setOrganId("");
               const el = document.getElementById("infoFile") as HTMLInputElement;
               if (el) el.value = "";
             }}
@@ -420,11 +387,40 @@ export default function OrderPage() {
         )}
       </div>
 
+      {/* שלב 2 — בחירת אורגן */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+          <Music className="h-5 w-5 text-purple-500" />
+          שלב 2 — בחירת אורגן
+        </h3>
+        {autoDetected && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-3 text-sm text-green-700 flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4" />
+            האורגן זוהה אוטומטית מקובץ האינפו. ניתן לשנות ידנית במידת הצורך.
+          </div>
+        )}
+        <select
+          value={organId}
+          onChange={(e) => {
+            setOrganId(e.target.value);
+            setAutoDetected(false);
+          }}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">בחר אורגן</option>
+          {organs.map((organ) => (
+            <option key={organ.id} value={organ.id}>
+              {organ.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* שלב 3 — סוג הזמנה */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <CreditCard className="h-5 w-5 text-orange-500" />
-          שלב 2 — בחירת מוצר
+          שלב 3 — בחירת מוצר
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {sets.map((set) => {
@@ -512,7 +508,7 @@ export default function OrderPage() {
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <FileText className="h-5 w-5 text-blue-500" />
-          שלב 3 — פרטים אישיים
+          שלב 4 — פרטים אישיים
         </h3>
         <div className="space-y-4">
           <div>
@@ -642,7 +638,7 @@ export default function OrderPage() {
             {!infoFile
               ? "יש להעלות קובץ אינפו"
               : !organId
-                ? "לא זוהה אורגן — נסו קובץ אחר"
+                ? "יש לבחור אורגן"
                 : !isUpdateOnly && !setTypeId
                   ? "יש לבחור סוג סט"
                   : isUpdateOnly && !updateVersionId
