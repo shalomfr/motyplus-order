@@ -26,7 +26,7 @@ export default function RootLayout({
         <div className="max-w-2xl mx-auto px-4 py-8">
           <div className="text-center mb-6">
             <h1 className="text-3xl font-bold text-blue-700">מוטי רוזנפלד</h1>
-            <p className="text-gray-500 text-sm mt-1">סטים ועדכוני תוכנה לאורגנים</p>
+            <p className="text-gray-500 text-sm mt-1">עדכוני סאונדים ומקצבים לאורגנים | Yamaha</p>
           </div>
           {children}
         </div>
