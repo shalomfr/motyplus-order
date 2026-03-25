@@ -115,6 +115,7 @@ export default function OrderPage() {
   const [infoFile, setInfoFile] = useState<File | null>(null);
   const [additionalInfoFile, setAdditionalInfoFile] = useState<File | null>(null);
   const [notes, setNotes] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [customAmount, setCustomAmount] = useState("");
   const [customDescription, setCustomDescription] = useState("");
@@ -203,6 +204,7 @@ export default function OrderPage() {
     email.includes("@") &&
     organId &&
     infoFile &&
+    agreedToTerms &&
     (isCustom ? customAmountNum > 0 : isUpdateOnly ? !!updateVersionId : !!setTypeId) &&
     totalPrice > 0;
 
@@ -636,6 +638,28 @@ export default function OrderPage() {
         </div>
       </div>
 
+      {/* תנאי שימוש */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={agreedToTerms}
+            onChange={(e) => setAgreedToTerms(e.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+          />
+          <span className="text-sm text-gray-700 leading-relaxed">
+            קראתי ואני מסכים ל
+            <a
+              href="/terms"
+              target="_blank"
+              className="text-blue-600 hover:text-blue-800 underline font-medium"
+            >
+              תנאי השימוש והסכם הרכישה
+            </a>
+          </span>
+        </label>
+      </div>
+
       {/* שגיאה */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm text-center flex items-center justify-center gap-2">
@@ -709,7 +733,9 @@ export default function OrderPage() {
                         ? "יש להזין מספר טלפון תקין"
                         : !email || !email.includes("@")
                           ? "יש להזין כתובת מייל תקינה"
-                          : ""}
+                          : !agreedToTerms
+                            ? "יש לאשר את תנאי השימוש"
+                            : ""}
           </p>
         )}
         <p className="text-xs text-center text-gray-500 mt-3">
