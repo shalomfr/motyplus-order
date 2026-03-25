@@ -113,6 +113,7 @@ export default function OrderPage() {
   const [setTypeId, setSetTypeId] = useState("");
   const [updateVersionId, setUpdateVersionId] = useState("");
   const [infoFile, setInfoFile] = useState<File | null>(null);
+  const [additionalInfoFile, setAdditionalInfoFile] = useState<File | null>(null);
   const [notes, setNotes] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [customAmount, setCustomAmount] = useState("");
@@ -260,6 +261,9 @@ export default function OrderPage() {
       if (notes) fd.append("notes", notes);
       if (couponCode.trim()) fd.append("couponCode", couponCode.trim());
       fd.append("infoFile", infoFile);
+      if (additionalInfoFile) {
+        fd.append("additionalInfoFile", additionalInfoFile);
+      }
       const billingFromEnv = process.env.NEXT_PUBLIC_BILLING_PROVIDER?.trim();
       if (billingFromEnv) {
         fd.append("billingProvider", billingFromEnv);
@@ -418,6 +422,59 @@ export default function OrderPage() {
           >
             הסר קובץ
           </button>
+        )}
+
+        {/* קובץ אינפו נוסף — לאורגן נוסף */}
+        {autoDetected && (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <p className="text-sm font-medium text-gray-600 mb-2 flex items-center gap-2">
+              <Cpu className="h-4 w-4 text-purple-500" />
+              יש לך אורגן נוסף? העלה קובץ אינפו שני (אופציונלי)
+            </p>
+            <div
+              className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
+                additionalInfoFile
+                  ? "border-purple-300 bg-purple-50"
+                  : "border-gray-200 hover:border-purple-200"
+              }`}
+              onClick={() => document.getElementById("additionalInfoFile")?.click()}
+            >
+              <input
+                id="additionalInfoFile"
+                type="file"
+                accept=".n27"
+                className="hidden"
+                onChange={(e) => setAdditionalInfoFile(e.target.files?.[0] || null)}
+              />
+              {additionalInfoFile ? (
+                <div className="flex items-center justify-center gap-2 text-purple-700">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span className="text-sm font-medium">{additionalInfoFile.name}</span>
+                  <span className="text-xs text-gray-500">
+                    ({(additionalInfoFile.size / 1024).toFixed(1)} KB)
+                  </span>
+                </div>
+              ) : (
+                <div>
+                  <Upload className="h-5 w-5 mx-auto text-gray-400 mb-1" />
+                  <p className="text-sm text-gray-500">לחצו להעלאת קובץ אינפו מאורגן נוסף</p>
+                </div>
+              )}
+            </div>
+            {additionalInfoFile && (
+              <button
+                type="button"
+                className="text-xs text-red-500 hover:text-red-700 mt-1"
+                onClick={() => {
+                  setAdditionalInfoFile(null);
+                  const el = document.getElementById("additionalInfoFile") as HTMLInputElement;
+                  if (el) el.value = "";
+                }}
+              >
+                הסר קובץ נוסף
+              </button>
+            )}
+          </div>
         )}
       </div>
 
