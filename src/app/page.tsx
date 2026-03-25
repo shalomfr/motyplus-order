@@ -127,6 +127,9 @@ export default function OrderPage() {
   const [detectedInstrument, setDetectedInstrument] = useState<InstrumentInfo | null>(null);
   const [autoDetected, setAutoDetected] = useState(false);
   const [detectionFailed, setDetectionFailed] = useState(false);
+  const [additionalDetectedInstrument, setAdditionalDetectedInstrument] = useState<InstrumentInfo | null>(null);
+  const [additionalAutoDetected, setAdditionalAutoDetected] = useState(false);
+  const [additionalDetectionFailed, setAdditionalDetectionFailed] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -186,6 +189,41 @@ export default function OrderPage() {
     },
     [organs]
   );
+
+  const handleAdditionalFileChange = useCallback(
+    (file: File | null) => {
+      setAdditionalInfoFile(file);
+      setAdditionalDetectedInstrument(null);
+      setAdditionalAutoDetected(false);
+      setAdditionalDetectionFailed(false);
+
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const buf = new Uint8Array(reader.result as ArrayBuffer);
+        const info = parseN27(buf);
+        setAdditionalDetectedInstrument(info);
+
+        if (info.name && organs.length > 0) {
+          const matched = matchOrgan(info.name, organs, info.waveUnits);
+          if (matched) {
+            setAdditionalAutoDetected(true);
+          } else {
+            setAdditionalDetectionFailed(true);
+          }
+        } else {
+          setAdditionalDetectionFailed(true);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    },
+    [organs]
+  );
+
+  const additionalMatchedOrgan = additionalDetectedInstrument?.name
+    ? matchOrgan(additionalDetectedInstrument.name, organs, additionalDetectedInstrument.waveUnits)
+    : null;
 
   const selectedSet = sets.find((s) => s.id === setTypeId);
   const selectedUpdate = updates.find((u) => u.id === updateVersionId);
@@ -436,7 +474,11 @@ export default function OrderPage() {
             <div
               className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
                 additionalInfoFile
-                  ? "border-purple-300 bg-purple-50"
+                  ? additionalAutoDetected
+                    ? "border-purple-300 bg-purple-50"
+                    : additionalDetectionFailed
+                      ? "border-red-300 bg-red-50"
+                      : "border-purple-300 bg-purple-50"
                   : "border-gray-200 hover:border-purple-200"
               }`}
               onClick={() => document.getElementById("additionalInfoFile")?.click()}
@@ -446,15 +488,45 @@ export default function OrderPage() {
                 type="file"
                 accept=".n27"
                 className="hidden"
-                onChange={(e) => setAdditionalInfoFile(e.target.files?.[0] || null)}
+                onChange={(e) => handleAdditionalFileChange(e.target.files?.[0] || null)}
               />
               {additionalInfoFile ? (
-                <div className="flex items-center justify-center gap-2 text-purple-700">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span className="text-sm font-medium">{additionalInfoFile.name}</span>
-                  <span className="text-xs text-gray-500">
-                    ({(additionalInfoFile.size / 1024).toFixed(1)} KB)
-                  </span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-center gap-2 text-purple-700">
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span className="text-sm font-medium">{additionalInfoFile.name}</span>
+                    <span className="text-xs text-gray-500">
+                      ({(additionalInfoFile.size / 1024).toFixed(1)} KB)
+                    </span>
+                  </div>
+                  {additionalAutoDetected && additionalMatchedOrgan && (
+                    <div className="bg-purple-100 border border-purple-300 rounded-lg p-2 mx-auto w-fit">
+                      <div className="flex items-center justify-center gap-2 text-purple-800">
+                        <Music className="h-4 w-4" />
+                        <span className="text-sm font-bold">{additionalMatchedOrgan.name}</span>
+                      </div>
+                      {additionalDetectedInstrument?.serial && (
+                        <p className="text-xs text-purple-600 mt-1 text-center">
+                          S/N: {additionalDetectedInstrument.serial}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {additionalDetectionFailed && (
+                    <div className="bg-red-100 border border-red-300 rounded-lg p-2 mx-auto">
+                      <div className="flex items-center justify-center gap-2 text-red-700">
+                        <AlertCircle className="h-4 w-4" />
+                        <span className="text-xs font-medium">
+                          לא הצלחנו לזהות את האורגן מהקובץ
+                        </span>
+                      </div>
+                      {additionalDetectedInstrument?.name && (
+                        <p className="text-xs text-red-600 mt-1 text-center">
+                          זוהה: {additionalDetectedInstrument.name} — אורגן זה אינו ברשימה
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div>
@@ -468,7 +540,7 @@ export default function OrderPage() {
                 type="button"
                 className="text-xs text-red-500 hover:text-red-700 mt-1"
                 onClick={() => {
-                  setAdditionalInfoFile(null);
+                  handleAdditionalFileChange(null);
                   const el = document.getElementById("additionalInfoFile") as HTMLInputElement;
                   if (el) el.value = "";
                 }}
