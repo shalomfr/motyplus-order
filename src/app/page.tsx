@@ -11,6 +11,7 @@ import {
   AlertCircle,
   Cpu,
 } from "lucide-react";
+import { EmailInput } from "@/components/email-input";
 
 // API calls go through Next.js rewrites proxy (no CORS needed)
 const CRM = "";
@@ -543,12 +544,10 @@ export default function OrderPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 מייל *
               </label>
-              <input
-                type="email"
+              <EmailInput
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onValueChange={(val) => setEmail(val)}
                 placeholder="your@email.com"
-                dir="ltr"
                 className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
