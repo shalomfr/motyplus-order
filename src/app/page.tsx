@@ -234,10 +234,11 @@ export default function OrderPage() {
     setCouponValidating(true);
     setCouponError("");
     try {
+      const fd = new FormData();
+      fd.append("couponCode", trimmed);
       const res = await fetch(`${CRM}/api/public/validate-coupon`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ couponCode: trimmed }),
+        body: fd,
       });
       const data = await res.json();
       if (data.valid && data.promotion) {
