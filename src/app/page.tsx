@@ -535,7 +535,7 @@ export default function OrderPage() {
                     <div className="bg-purple-100 border border-purple-300 rounded-lg p-2 mx-auto w-fit">
                       <div className="flex items-center justify-center gap-2 text-purple-800">
                         <Music className="h-4 w-4" />
-                        <span className="text-sm font-bold">{additionalMatchedOrgan.name}</span>
+                        <span className="text-sm font-bold">{additionalMatchedOrgan?.name}</span>
                       </div>
                       {additionalDetectedInstrument?.serial && (
                         <p className="text-xs text-purple-600 mt-1 text-center">
