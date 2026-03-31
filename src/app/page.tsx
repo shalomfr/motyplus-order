@@ -508,23 +508,11 @@ export default function OrderPage() {
           </button>
         )}
 
-        {/* קובץ אינפו נוסף — לאורגן נוסף */}
-        {autoDetected && (
+        {/* אורגן נוסף הוסר */}
+        {false && autoDetected && (
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <p className="text-sm font-medium text-gray-600 mb-2 flex items-center gap-2">
-              <Cpu className="h-4 w-4 text-purple-500" />
-              יש לך אורגן נוסף? העלה קובץ אינפו שני (אופציונלי)
-            </p>
             <div
-              className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
-                additionalInfoFile
-                  ? additionalAutoDetected
-                    ? "border-purple-300 bg-purple-50"
-                    : additionalDetectionFailed
-                      ? "border-red-300 bg-red-50"
-                      : "border-purple-300 bg-purple-50"
-                  : "border-gray-200 hover:border-purple-200"
-              }`}
+              className="border-gray-200"
               onClick={() => document.getElementById("additionalInfoFile")?.click()}
             >
               <input
@@ -645,7 +633,7 @@ export default function OrderPage() {
             onClick={() => setSetTypeId("__custom__")}
           >
             <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-600">סכום חופשי</span>
+              <span className="font-medium text-gray-600">אחר</span>
               {isCustom && (
                 <CheckCircle2 className="h-5 w-5 text-orange-500" />
               )}
