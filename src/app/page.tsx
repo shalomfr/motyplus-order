@@ -554,7 +554,7 @@ export default function OrderPage() {
                       </div>
                       {additionalDetectedInstrument?.name && (
                         <p className="text-xs text-red-600 mt-1 text-center">
-                          זוהה: {additionalDetectedInstrument.name} — אורגן זה אינו ברשימה
+                          זוהה: {additionalDetectedInstrument?.name} — אורגן זה אינו ברשימה
                         </p>
                       )}
                     </div>
