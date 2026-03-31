@@ -117,6 +117,9 @@ export default function OrderPage() {
   const [notes, setNotes] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [couponCode, setCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState<{ name: string; discountPercent: number; discountAmount: number } | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponValidating, setCouponValidating] = useState(false);
   const [customAmount, setCustomAmount] = useState("");
   const [customDescription, setCustomDescription] = useState("");
 
@@ -221,6 +224,37 @@ export default function OrderPage() {
     [organs]
   );
 
+  const validateCoupon = useCallback(async (code: string) => {
+    const trimmed = code.trim();
+    if (!trimmed) {
+      setCouponDiscount(null);
+      setCouponError("");
+      return;
+    }
+    setCouponValidating(true);
+    setCouponError("");
+    try {
+      const res = await fetch(`${CRM}/api/public/validate-coupon`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ couponCode: trimmed }),
+      });
+      const data = await res.json();
+      if (data.valid && data.promotion) {
+        setCouponDiscount(data.promotion);
+        setCouponError("");
+      } else {
+        setCouponDiscount(null);
+        setCouponError(data.error || "קוד קופון לא תקין");
+      }
+    } catch {
+      setCouponDiscount(null);
+      setCouponError("שגיאה בבדיקת הקופון");
+    } finally {
+      setCouponValidating(false);
+    }
+  }, []);
+
   const additionalMatchedOrgan = additionalDetectedInstrument?.name
     ? matchOrgan(additionalDetectedInstrument.name, organs, additionalDetectedInstrument.waveUnits)
     : null;
@@ -229,11 +263,20 @@ export default function OrderPage() {
   const selectedUpdate = updates.find((u) => u.id === updateVersionId);
   const isCustom = setTypeId === "__custom__";
   const customAmountNum = Number(customAmount) || 0;
-  const totalPrice = isCustom
+  const basePrice = isCustom
     ? customAmountNum
     : isUpdateOnly
       ? Number(selectedUpdate?.price || 0)
       : Number(selectedSet?.price || 0);
+
+  let totalPrice = basePrice;
+  if (couponDiscount) {
+    if (couponDiscount.discountAmount > 0) {
+      totalPrice = Math.max(0, basePrice - couponDiscount.discountAmount);
+    } else if (couponDiscount.discountPercent > 0) {
+      totalPrice = Math.round(basePrice * (1 - couponDiscount.discountPercent / 100));
+    }
+  }
 
   const selectedOrgan = organs.find((o) => o.id === organId);
   const canSubmit =
@@ -244,7 +287,7 @@ export default function OrderPage() {
     infoFile &&
     agreedToTerms &&
     (isCustom ? customAmountNum > 0 : isUpdateOnly ? !!updateVersionId : !!setTypeId) &&
-    totalPrice > 0;
+    (totalPrice > 0 || (totalPrice === 0 && couponDiscount != null));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -687,13 +730,53 @@ export default function OrderPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               קוד קופון (אם יש)
             </label>
-            <input
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value)}
-              placeholder="הזן קוד קופון..."
-              dir="ltr"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <div className="flex gap-2">
+              <input
+                value={couponCode}
+                onChange={(e) => {
+                  setCouponCode(e.target.value);
+                  if (!e.target.value.trim()) {
+                    setCouponDiscount(null);
+                    setCouponError("");
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    validateCoupon(couponCode);
+                  }
+                }}
+                placeholder="הזן קוד קופון..."
+                dir="ltr"
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button
+                type="button"
+                disabled={!couponCode.trim() || couponValidating}
+                onClick={() => validateCoupon(couponCode)}
+                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1"
+              >
+                {couponValidating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "החל"
+                )}
+              </button>
+            </div>
+            {couponDiscount && (
+              <div className="mt-2 flex items-center gap-2 text-green-700 bg-green-50 border border-green-200 rounded-lg p-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                <span>
+                  קופון <strong>{couponDiscount.name}</strong> —{" "}
+                  {couponDiscount.discountAmount > 0
+                    ? `${couponDiscount.discountAmount} ₪ הנחה`
+                    : `${couponDiscount.discountPercent}% הנחה`}
+                </span>
+              </div>
+            )}
+            {couponError && (
+              <p className="mt-1 text-sm text-red-600">{couponError}</p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -766,10 +849,22 @@ export default function OrderPage() {
           </div>
         )}
 
+        {couponDiscount && basePrice > 0 && totalPrice < basePrice && (
+          <div className="bg-white rounded-lg p-3 mb-3 text-sm space-y-1">
+            <div className="flex justify-between text-gray-500">
+              <span>מחיר מקורי:</span>
+              <span className="line-through">{basePrice.toLocaleString()} ₪</span>
+            </div>
+            <div className="flex justify-between text-green-700 font-medium">
+              <span>הנחת קופון ({couponDiscount.name}):</span>
+              <span>-{(basePrice - totalPrice).toLocaleString()} ₪</span>
+            </div>
+          </div>
+        )}
         <div className="flex items-center justify-between mb-4">
           <span className="font-bold text-lg">סה&quot;כ לתשלום:</span>
           <span className="text-3xl font-bold text-blue-600">
-            {totalPrice > 0 ? `${totalPrice.toLocaleString()} ₪` : "—"}
+            {totalPrice > 0 ? `${totalPrice.toLocaleString()} ₪` : totalPrice === 0 && couponDiscount ? "חינם!" : "—"}
           </span>
         </div>
         <button
