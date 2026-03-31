@@ -539,7 +539,7 @@ export default function OrderPage() {
                       </div>
                       {additionalDetectedInstrument?.serial && (
                         <p className="text-xs text-purple-600 mt-1 text-center">
-                          S/N: {additionalDetectedInstrument.serial}
+                          S/N: {additionalDetectedInstrument?.serial}
                         </p>
                       )}
                     </div>
