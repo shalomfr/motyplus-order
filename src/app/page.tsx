@@ -526,9 +526,9 @@ export default function OrderPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-center gap-2 text-purple-700">
                     <CheckCircle2 className="h-4 w-4" />
-                    <span className="text-sm font-medium">{additionalInfoFile.name}</span>
+                    <span className="text-sm font-medium">{additionalInfoFile!.name}</span>
                     <span className="text-xs text-gray-500">
-                      ({(additionalInfoFile.size / 1024).toFixed(1)} KB)
+                      ({(additionalInfoFile!.size / 1024).toFixed(1)} KB)
                     </span>
                   </div>
                   {additionalAutoDetected && additionalMatchedOrgan && (
