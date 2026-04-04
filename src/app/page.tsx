@@ -100,7 +100,106 @@ function matchOrgan(detectedName: string, organs: Organ[], waveUnits = 0): Organ
   return null;
 }
 
+function LandingGate({ onUnlock }: { onUnlock: () => void }) {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password.trim() === "תשלום") {
+      sessionStorage.setItem("order-unlocked", "1");
+      onUnlock();
+    } else {
+      setError(true);
+      setTimeout(() => setError(false), 2000);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden">
+      {/* Background video */}
+      <video
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded ? "opacity-20" : "opacity-0"}`}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        onPlaying={() => setVideoLoaded(true)}
+      >
+        <source src="/videos/hero-object-video.mp4" type="video/mp4" />
+      </video>
+
+      <div className="relative z-10 flex flex-col items-center gap-6 max-w-md w-full">
+        {/* Animated Logo */}
+        <div className="animate-fade-in-up">
+          <div className="relative animate-pulse-glow rounded-full" style={{ width: 120, height: 120 }}>
+            <div
+              className="absolute inset-0 rounded-full blur-xl opacity-40"
+              style={{ background: "#0F508E" }}
+            />
+            <img
+              src="/logo.png"
+              alt="Motty Beats"
+              width={120}
+              height={120}
+              className="relative z-10 rounded-full"
+            />
+            <div
+              className="absolute z-20 rounded-full bg-white shadow-lg animate-ball-bounce"
+              style={{
+                width: 19,
+                height: 19,
+                top: 20,
+                right: 41,
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Title */}
+        <div className="text-center animate-fade-in-up-delay">
+          <h1 className="text-3xl font-bold text-blue-700">מוטי רוזנפלד</h1>
+          <p className="text-gray-500 text-sm mt-1">עדכוני סאונדים ומקצבים לאורגנים | Yamaha</p>
+        </div>
+
+        {/* Password form */}
+        <form onSubmit={handleSubmit} className="w-full flex flex-col items-center gap-4 animate-fade-in-up-delay-2">
+          <p className="text-gray-600 text-center text-sm">
+            הזינו את סיסמת הכניסה כדי להמשיך לדף התשלום
+          </p>
+          <div className="w-full max-w-xs">
+            <input
+              type="text"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="סיסמה"
+              className={`w-full px-4 py-3 rounded-lg border-2 text-center text-lg focus:outline-none transition-colors ${
+                error
+                  ? "border-red-400 bg-red-50 shake"
+                  : "border-blue-200 focus:border-blue-500 bg-white"
+              }`}
+              autoFocus
+            />
+            {error && (
+              <p className="text-red-500 text-sm text-center mt-2">סיסמה שגויה, נסו שוב</p>
+            )}
+          </div>
+          <button
+            type="submit"
+            className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+          >
+            כניסה לדף התשלום
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function OrderPage() {
+  const [unlocked, setUnlocked] = useState(false);
   const [organs, setOrgans] = useState<Organ[]>([]);
   const [sets, setSets] = useState<SetType[]>([]);
   const [updates, setUpdates] = useState<UpdateVersion[]>([]);
@@ -133,6 +232,12 @@ export default function OrderPage() {
   const [additionalDetectedInstrument, setAdditionalDetectedInstrument] = useState<InstrumentInfo | null>(null);
   const [additionalAutoDetected, setAdditionalAutoDetected] = useState(false);
   const [additionalDetectionFailed, setAdditionalDetectionFailed] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("order-unlocked") === "1") {
+      setUnlocked(true);
+    }
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -373,6 +478,10 @@ export default function OrderPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (!unlocked) {
+    return <LandingGate onUnlock={() => setUnlocked(true)} />;
+  }
 
   if (loading) {
     return (
