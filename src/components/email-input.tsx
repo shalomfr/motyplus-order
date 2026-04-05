@@ -135,13 +135,13 @@ export function EmailInput({ className, onValueChange, onChange, onBlur, value, 
       />
       {showSuggestions && suggestions.length > 0 && (
         <ul
-          className="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg max-h-48 overflow-auto"
+          className="absolute z-50 mt-1 left-0 right-0 rounded-md border border-gray-200 bg-white shadow-lg max-h-48 overflow-auto"
           dir="ltr"
         >
           {suggestions.map((suggestion, index) => (
             <li
               key={suggestion}
-              className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 text-left ${
+              className={`px-3 py-3 sm:py-2 text-sm cursor-pointer hover:bg-blue-50 active:bg-blue-100 text-left min-h-[44px] flex items-center ${
                 index === selectedIndex ? "bg-blue-100" : ""
               }`}
               onMouseDown={() => selectSuggestion(suggestion)}

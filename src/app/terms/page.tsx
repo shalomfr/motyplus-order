@@ -1,8 +1,8 @@
 export default function TermsPage() {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 text-gray-700 leading-relaxed">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-4 sm:space-y-6 text-gray-700 leading-relaxed text-sm sm:text-base">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-800">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
           תנאי שימוש והסכם רכישה
         </h2>
         <p className="text-sm text-gray-400 mt-1">בס&quot;ד</p>
@@ -13,7 +13,7 @@ export default function TermsPage() {
       </p>
 
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
           1. שימוש אישי בלבד
         </h3>
         <p>
@@ -24,7 +24,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
           2. אורגן אחד בלבד
         </h3>
         <ul className="list-disc pr-6 space-y-1">
@@ -42,7 +42,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
           3. שדרוג אורגן
         </h3>
         <p>
@@ -57,7 +57,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
           4. שימוש באירועים
         </h3>
         <p>
@@ -67,7 +67,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
           5. איסור מסירת מידע פנימי
         </h3>
         <p>
@@ -77,7 +77,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
           6. מדיניות ביטולים
         </h3>
         <p>
@@ -87,7 +87,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
           7. עדכונים
         </h3>
         <ul className="list-disc pr-6 space-y-1">
@@ -107,7 +107,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
           8. אחריות
         </h3>
         <ul className="list-disc pr-6 space-y-1">
@@ -124,7 +124,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
           9. הפרת תנאים
         </h3>
         <p>

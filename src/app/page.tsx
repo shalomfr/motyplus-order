@@ -160,8 +160,8 @@ function LandingGate({ onUnlock }: { onUnlock: () => void }) {
 
         {/* Title */}
         <div className="text-center animate-fade-in-up-delay">
-          <h1 className="text-3xl font-bold text-blue-700">מוטי רוזנפלד</h1>
-          <p className="text-gray-500 text-sm mt-1">עדכוני סאונדים ומקצבים לאורגנים | Yamaha</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-blue-700">מוטי רוזנפלד</h1>
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">עדכוני סאונדים ומקצבים לאורגנים | Yamaha</p>
         </div>
 
         {/* Password form */}
@@ -175,7 +175,7 @@ function LandingGate({ onUnlock }: { onUnlock: () => void }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="סיסמה"
-              className={`w-full px-4 py-3 rounded-lg border-2 text-center text-lg focus:outline-none transition-colors ${
+              className={`w-full px-4 py-3 rounded-lg border-2 text-center text-base sm:text-lg focus:outline-none transition-colors ${
                 error
                   ? "border-red-400 bg-red-50 shake"
                   : "border-blue-200 focus:border-blue-500 bg-white"
@@ -509,15 +509,15 @@ export default function OrderPage() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800">טופס הזמנה</h2>
+      <div className="text-center mb-4 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">טופס הזמנה</h2>
         <p className="text-gray-500 mt-1">
           העלו קובץ אינפו, בחרו מוצר ומלאו פרטים לתשלום
         </p>
       </div>
 
       {/* שלב 1 — העלאת קובץ אינפו + זיהוי אורגן */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
         <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
           <Upload className="h-5 w-5 text-teal-500" />
           שלב 1 — העלאת קובץ אינפו
@@ -526,7 +526,7 @@ export default function OrderPage() {
           העלו את קובץ האינפו מהאורגן שלכם — המערכת תזהה אוטומטית את סוג האורגן
         </p>
         <div
-          className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+          className={`border-2 border-dashed rounded-lg p-4 sm:p-6 text-center cursor-pointer transition-colors ${
             infoFile
               ? autoDetected
                 ? "border-green-300 bg-green-50"
@@ -694,7 +694,7 @@ export default function OrderPage() {
       </div>
 
       {/* שלב 3 — סוג הזמנה */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <CreditCard className="h-5 w-5 text-orange-500" />
           שלב 2 — בחירת מוצר
@@ -763,7 +763,7 @@ export default function OrderPage() {
                 value={customAmount}
                 onChange={(e) => setCustomAmount(e.target.value)}
                 placeholder="הזן סכום"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
             <div>
@@ -774,7 +774,7 @@ export default function OrderPage() {
                 value={customDescription}
                 onChange={(e) => setCustomDescription(e.target.value)}
                 placeholder="למשל: תשלום עבור שירות מיוחד"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -782,7 +782,7 @@ export default function OrderPage() {
       </div>
 
       {/* שלב 4 — פרטים אישיים */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <FileText className="h-5 w-5 text-blue-500" />
           שלב 3 — פרטים אישיים
@@ -796,7 +796,7 @@ export default function OrderPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="הזן שם מלא"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -809,7 +809,7 @@ export default function OrderPage() {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="050-1234567"
                 dir="ltr"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div>
@@ -820,7 +820,7 @@ export default function OrderPage() {
                 value={email}
                 onValueChange={(val) => setEmail(val)}
                 placeholder="your@email.com"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -846,13 +846,13 @@ export default function OrderPage() {
                 }}
                 placeholder="הזן קוד קופון..."
                 dir="ltr"
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <button
                 type="button"
                 disabled={!couponCode.trim() || couponValidating}
                 onClick={() => validateCoupon(couponCode)}
-                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1"
+                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1 min-h-[44px]"
               >
                 {couponValidating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -885,7 +885,7 @@ export default function OrderPage() {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="הערות נוספות..."
               rows={2}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -898,7 +898,7 @@ export default function OrderPage() {
             type="checkbox"
             checked={agreedToTerms}
             onChange={(e) => setAgreedToTerms(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            className="mt-1 h-5 w-5 min-w-[20px] rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
           />
           <span className="text-sm text-gray-700 leading-relaxed">
             קראתי ואני מסכים ל
@@ -922,7 +922,7 @@ export default function OrderPage() {
       )}
 
       {/* סיכום + תשלום */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6">
         {/* סיכום הזמנה */}
         {(selectedSet || selectedUpdate || selectedOrgan) && (
           <div className="bg-white rounded-lg p-3 mb-4 text-sm space-y-1">
@@ -960,15 +960,15 @@ export default function OrderPage() {
           </div>
         )}
         <div className="flex items-center justify-between mb-4">
-          <span className="font-bold text-lg">סה&quot;כ לתשלום:</span>
-          <span className="text-3xl font-bold text-blue-600">
+          <span className="font-bold text-base sm:text-lg">סה&quot;כ לתשלום:</span>
+          <span className="text-2xl sm:text-3xl font-bold text-blue-600">
             {totalPrice > 0 ? `${totalPrice.toLocaleString()} ₪` : totalPrice === 0 && couponDiscount ? "חינם!" : "—"}
           </span>
         </div>
         <button
           type="submit"
           disabled={isSubmitting || !canSubmit}
-          className="w-full h-12 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-lg font-medium rounded-lg flex items-center justify-center gap-2 transition-colors"
+          className="w-full h-12 sm:h-12 min-h-[48px] bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-base sm:text-lg font-medium rounded-lg flex items-center justify-center gap-2 transition-colors"
         >
           {isSubmitting ? (
             <>
