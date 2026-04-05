@@ -1,0 +1,62 @@
+name: Deploy Order to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js
+        run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+          CRM_API_URL: http://localhost:3000
+          CRM_URL: http://localhost:3000
+          NEXT_PUBLIC_CRM_URL: https://vps.mottycrm.com
+
+      - name: Package standalone
+        run: |
+          tar czf /tmp/order-standalone.tar.gz .next/standalone .next/static public
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H 143.110.149.152 >> ~/.ssh/known_hosts
+
+      - name: Upload and deploy
+        run: |
+          scp -i ~/.ssh/id_ed25519 /tmp/order-standalone.tar.gz cursor@143.110.149.152:~/order-standalone.tar.gz
+          ssh -i ~/.ssh/id_ed25519 cursor@143.110.149.152 "
+            cd ~/motyplus-order
+            rm -rf .next/standalone .next/static
+            tar xzf ~/order-standalone.tar.gz
+            cp .env .next/standalone/.env 2>/dev/null
+            cp -r .next/static .next/standalone/.next/static
+            cp -r public .next/standalone/public
+            pm2 delete order 2>/dev/null
+            pm2 start ~/motyplus-order/ecosystem.config.js
+            pm2 save
+            echo 'Order deployed!'
+          "
+
+      - name: Purge Cloudflare cache
+        run: |
+          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"purge_everything":true}'

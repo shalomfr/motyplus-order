@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const CRM_BASE = "https://motyplus-2hvb.onrender.com";
+const CRM_BASE = process.env.CRM_API_URL || "https://motyplus-2hvb.onrender.com";
 
 async function proxy(req: NextRequest) {
   try {
